@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.itemCli
         appDatabase =  DatabaseClient.getInstance(getApplicationContext()).getAppDB();
 
         getItems();
-        getItems();
+
     }
 
     private void getItems() {
