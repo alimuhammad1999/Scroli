@@ -52,9 +52,7 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.itemCli
         appDatabase =  DatabaseClient.getInstance(getApplicationContext()).getAppDB();
 
         getItems();
-
-        Date d = new Date();
-        date.setText(addDays(d,0).toString());
+        getItems();
     }
 
     private void getItems() {
@@ -112,8 +110,11 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.itemCli
         dataview.setAdapter(adapter);
 
     }
-
+    //this is the change i made to my main activity
+    // so i can see them on git hub
     public static Date addDays(Date date, int days){
+
+        //making changes
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
