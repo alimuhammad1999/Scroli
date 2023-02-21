@@ -1,5 +1,6 @@
 package com.fyp.scroli.Utils.Adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,7 +45,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>{
         holder.lname.setText(list.get(position).getLast_name());
         holder.fname.setText(list.get(position).getFirst_name());
 
-        Glide.with(ctx).load(list.get(position)
+        Glide.with((Activity) myitemclick).load(list.get(position)
                 .getAvatar())
                 .placeholder(R.drawable.ic_launcher_foreground)
                 .into(holder.image);

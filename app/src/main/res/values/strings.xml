@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Scroli</string>
+    <string name="hi_mom">Hi MoM</string>
+    <string name="DB">mydatabase</string>
 </resources>
