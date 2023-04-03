@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
     <files-path
-        name="a"
-        path="../databases/"/>
+        name="mydatabase"
+        path="../databases/" />
+<!--    <external-files-path name="my_images"-->
+<!--        path="/Pictures" />-->
+<!--    <external-files-path-->
+<!--        name="my_videos"-->
+<!--        path="/Movies"/>-->
+    <external-path
+        name="external"
+        path="/Pictures" />
+    <external-path
+        name="external_movies"
+        path="/Movies"/>
 </paths>

@@ -9,17 +9,18 @@ public class WebClient {
     private Api myApi;
 
 
-    private WebClient() {
-        Retrofit retrofit = new Retrofit.Builder().baseUrl(Api.BASE_URL)
+    private WebClient(String url) {
+        Retrofit retrofit = new Retrofit.Builder().baseUrl(url)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         myApi = retrofit.create(Api.class);
     }
 
-    public static synchronized WebClient getInstance() {
-        if (instance == null) {
-            instance = new WebClient();
-        }
+    public static synchronized WebClient getInstance(String url) {
+        /*if (instance == null) {
+            instance = new WebClient(url);
+        }*/
+        instance = new WebClient(url);
         return instance;
     }
 

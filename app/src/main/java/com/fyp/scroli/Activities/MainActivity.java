@@ -1,12 +1,16 @@
-package com.fyp.scroli;
+package com.fyp.scroli.Activities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.databinding.DataBindingUtil;
@@ -16,8 +20,10 @@ import androidx.sqlite.db.SimpleSQLiteQuery;
 
 import com.fyp.scroli.Data.AppDatabase;
 import com.fyp.scroli.Data.DatabaseClient;
-import com.fyp.scroli.Data.Person;
-import com.fyp.scroli.Utils.Adapter.MyAdapter;
+import com.fyp.scroli.Data.Models.Person;
+import com.fyp.scroli.R;
+import com.fyp.scroli.Utils.Adapter.PersonAdapter;
+import com.fyp.scroli.Utils.WebClient.Api;
 import com.fyp.scroli.Utils.WebClient.WebClient;
 import com.fyp.scroli.databinding.ActivityMainBinding;
 
@@ -27,20 +33,20 @@ import java.io.FileOutputStream;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 
-public class MainActivity extends AppCompatActivity implements MyAdapter.itemClickListner {
+public class MainActivity extends AppCompatActivity implements PersonAdapter.itemClickListner{
 
     private List<Person> person_list;
-    //private RecyclerView dataview;
     private ProgressDialog loading;
-    //private RecyclerView.Adapter adapter;
     private RecyclerView.LayoutManager layoutManager;
     private ActivityMainBinding bi;
-
     private static AppDatabase appDatabase;
+    private PersonAdapter adapter;
+    boolean isLoading = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,91 +55,129 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.itemCli
         setTitle("Scroli");
 
         Init();
-        getItems();
-        bi.copybtn.setOnClickListener(view -> cpy_dir());
-        bi.deletebtn.setOnClickListener(view -> sendEmail());
 
     }
+
     private void Init() {
 
         person_list = new ArrayList<>();
-        layoutManager = new LinearLayoutManager(this);
-        bi.dataview.setLayoutManager(layoutManager);
         appDatabase = DatabaseClient.getInstance(getApplicationContext()).getAppDB();
+        adapter = new PersonAdapter(person_list, MainActivity.this,callback);
+
+        bi.dataview.setAdapter(adapter);
+        bi.copybtn.setOnClickListener(view -> cpy_dir());
+        bi.deletebtn.setOnClickListener(view -> sendDBEmail());
+
+        InitItems();
+
+        InitScrollListner();
 
     }
 
-    private void getItems() {
 
-        loading = ProgressDialog.show(this, "Fetching your data", "please wait", false, true);
-        person_list = appDatabase.dataAO().getAll();
 
-        if (!person_list.isEmpty()) {
+    private List<Person> getValues(int from,int len){
+        SimpleSQLiteQuery Query = new SimpleSQLiteQuery("SELECT * FROM Person LIMIT "+ from +","+ len);
 
-            loading.dismiss();
-            MyAdapter adapter = new MyAdapter(person_list, MainActivity.this, MainActivity.this);
-            bi.dataview.setAdapter(adapter);
+        return appDatabase.dataAO().getsome(Query);
+    }
 
+    private void InitItems() {
+        List<Person> temp_list = getValues(0,10);
+
+        if (!temp_list.isEmpty()) {
+            person_list.addAll(temp_list);
         } else {
-
             Retrofit_req();
-
         }
     }
 
     private void Retrofit_req() {
+        boolean CONDETECTOR = true;
+        if (CONDETECTOR) {
 
-        if (true) {
-
-            Call<List<Person>> call = WebClient.getInstance().getMyApi().getWebResults();   //api.getWebResults();
+            loading = ProgressDialog.show(this, "Fetching your data", "please wait", false, true);
+            Call<List<Person>> call = WebClient.getInstance(Api.PERSON_BASE_URL).getMyApi().getPersonWebResults();   //api.getWebResults();
             call.enqueue(new Callback<List<Person>>() {
                 @Override
                 public void onResponse(Call<List<Person>> call, retrofit2.Response<List<Person>> response) {
-
                     if (!response.isSuccessful()) {
 
-                        Log.d("TAG: ", "onResponseErrorCode: " + response.code());
                         Toast.makeText(MainActivity.this,
                                         "Error occured with code: " + response.code(),
-                                        Toast.LENGTH_SHORT)
-                                .show();
+                                        Toast.LENGTH_SHORT).show();
                         return;
-
                     }
-
                     loading.dismiss();
-                    person_list = response.body();
-                    parsejasonobj();
-
+                    appDatabase.dataAO().insertAllPerson(response.body());
+                    InitItems();
+                    adapter.add(person_list);
+                    bi.dataview.setAdapter(adapter);
                 }
-
                 @Override
                 public void onFailure(Call<List<Person>> call, Throwable t) {
-
                     loading.dismiss();
                     Log.d("Error Message: ", "onFailure: " + t.getMessage());
-
                 }
-
             });
         } else {
             Log.d("TAG", "Retrofit_req: Unreachable");
         }
     }
 
-    private void parsejasonobj() {
-        appDatabase.dataAO().insertAll(person_list);
-        MyAdapter adapter = new MyAdapter(person_list, MainActivity.this, MainActivity.this);
-        bi.dataview.setAdapter(adapter);
+    private void InitScrollListner() {
+        bi.dataview.addOnScrollListener(new RecyclerView.OnScrollListener() {
 
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+
+                if (!isLoading) {
+                    if (linearLayoutManager != null && linearLayoutManager.findLastCompletelyVisibleItemPosition() == person_list.size() - 1) {
+                        //bottom of list!
+                        person_list.add(null);
+                        adapter.notifyItemInserted(person_list.size() - 1);
+                        bi.dataview.smoothScrollToPosition(person_list.size());
+                        isLoading = true;
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                loadMore();
+                            }
+                        },2000);
+                    }
+                }
+            }
+
+            private void loadMore() {
+                int scrollPosition = person_list.size();
+                person_list.remove(scrollPosition-1);
+                adapter.notifyItemRemoved(scrollPosition);
+                List<Person> temp = getValues(scrollPosition-1,10);
+
+                if(!temp.isEmpty()){
+                    person_list.addAll(temp);
+                    adapter.notifyDataSetChanged();
+                }else{
+                    Toast.makeText(MainActivity.this, "List end reached", Toast.LENGTH_SHORT).show();
+                    ProgressBar pb = findViewById(R.id.progressBar);
+                    pb.setVisibility(View.GONE);
+                    bi.dataview.clearOnScrollListeners();
+                }
+                isLoading = false;
+            }
+        });
     }
 
     private void cpy_dir(){
-        File db_Dir = new File(this.getDatabasePath("mydatabase").getParent());
+        File db_Dir;
+        db_Dir = new File(Objects.requireNonNull(this.getDatabasePath("mydatabase").getParent()));
         File destination = new File(this.getDatabasePath("mydatabase").getParent() + "/backups");
 
         if (db_Dir.isDirectory()) {
-            File[] files = db_Dir.listFiles(file -> (file.isFile()));
+            File[] files = db_Dir.listFiles(File::isFile);
             if (files != null && files.length > 0) {
                 for (File file : files) {
                     copyfile(file,destination);
@@ -142,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.itemCli
         }
     }
 
-    private File copyfile(File myfile,File directory){
+    public static File copyfile(File myfile,File directory){
 
         String path = directory.getAbsolutePath() + "/" + myfile.getName();
         File dest = new File(path);
@@ -157,42 +201,17 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.itemCli
             return dest;
         } catch (Exception e) {
             Log.e("MYAPP", "exception", e);
-            Toast.makeText(MainActivity.this, "" + e, Toast.LENGTH_SHORT).show();
+            //Toast.makeText(MainActivity.this, "" + e, Toast.LENGTH_SHORT).show();
         }
         return null;
     }
 
-   /* public void get_dir(){
-        Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.setType("application/octet-stream");
-
-        Uri uri = new FileProvider().getDatabaseURI(this);
-
-        intent.putExtra(Intent.EXTRA_STREAM, uri);
-
-        startActivity(Intent.createChooser(intent, "Backup via:"));
-    }*/
-
- /*   public void dir(){
-        File exportFile = this.getDatabasePath("mydatabase"); // new approach
-
-        return getFileUri(this, exportFile);
-    }
-
-    public Uri getFileUri(Context c, File f){
-        return getUriForFile(c, "com.url.myapp.fileprovider", f);
-    }
-*/
-
-
-    public void sendEmail(){
+    public void sendDBEmail(){
         appDatabase.dataAO().checkpoint(new SimpleSQLiteQuery("pragma wal_checkpoint(full)"));
-        /*File privateRootDir = getFilesDir();
-        File db = new File(this.getDatabasePath("mydatabase").getParent()+"/mydatabase");
-        File sendfile = copyfile(db,privateRootDir);*/
-        File db = this.getDatabasePath("mydatabase");
+
+        File db = new File(this.getDatabasePath("mydatabase").getParent(),"mydatabase");
         Uri u = FileProvider.getUriForFile(this,this.getPackageName() + ".fileprovider",db);
-        //Uri uri = FileProvider.getUriForFile(this, this.getPackageName() + ".fileprovider", sendfile);
+
         String[] mailto = {"alianwar1999@gmail.com"};
         Intent email = new Intent(Intent.ACTION_SEND);
         email.setType("message/rfc822");
@@ -210,12 +229,14 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.itemCli
             Toast.makeText(this, "There are no email clients installed.", Toast.LENGTH_SHORT).show();
         }
     }
-
     @Override
     public void onItemClick(int position) {
-
         Intent intent = new Intent(MainActivity.this, display_details.class);
         intent.putExtra("Person", person_list.get(position));
         startActivity(intent);
     }
+
+    PersonAdapter.TestCallback callback = () ->
+            Toast.makeText(MainActivity.this, "Callback without implementing grom ma", Toast.LENGTH_SHORT).show();
+
 }

@@ -3,12 +3,26 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/my_repo/AKU/Scroli/app/src/main/res/drawable/add.xml" value="0.106" />
+        <entry key="..\:/my_repo/AKU/Scroli/app/src/main/res/drawable/data_item_bg.xml" value="0.163" />
+        <entry key="..\:/my_repo/AKU/Scroli/app/src/main/res/drawable/data_item_image.xml" value="0.163" />
+        <entry key="..\:/my_repo/AKU/Scroli/app/src/main/res/drawable/image_bg.xml" value="0.154" />
+        <entry key="..\:/my_repo/AKU/Scroli/app/src/main/res/drawable/layer.xml" value="0.154" />
+        <entry key="..\:/my_repo/AKU/Scroli/app/src/main/res/drawable/person_item_bg.xml" value="0.163" />
+        <entry key="..\:/my_repo/AKU/Scroli/app/src/main/res/layout/activity_add_user.xml" value="0.2" />
+        <entry key="..\:/my_repo/AKU/Scroli/app/src/main/res/layout/activity_added_users.xml" value="0.264" />
+        <entry key="..\:/my_repo/AKU/Scroli/app/src/main/res/layout/activity_camera.xml" value="0.20778110303548525" />
         <entry key="..\:/my_repo/AKU/Scroli/app/src/main/res/layout/activity_display_deails.xml" value="0.1" />
         <entry key="..\:/my_repo/AKU/Scroli/app/src/main/res/layout/activity_display_details.xml" value="0.1" />
-        <entry key="..\:/my_repo/AKU/Scroli/app/src/main/res/layout/activity_main.xml" value="0.2" />
+        <entry key="..\:/my_repo/AKU/Scroli/app/src/main/res/layout/activity_main.xml" value="0.152" />
+        <entry key="..\:/my_repo/AKU/Scroli/app/src/main/res/layout/activity_reqres.xml" value="0.10879419764279238" />
+        <entry key="..\:/my_repo/AKU/Scroli/app/src/main/res/layout/activity_share.xml" value="0.1" />
         <entry key="..\:/my_repo/AKU/Scroli/app/src/main/res/layout/activity_splashscreen.xml" value="0.1" />
         <entry key="..\:/my_repo/AKU/Scroli/app/src/main/res/layout/data_element.xml" value="0.1" />
         <entry key="..\:/my_repo/AKU/Scroli/app/src/main/res/layout/data_item.xml" value="0.17299824663939217" />
+        <entry key="..\:/my_repo/AKU/Scroli/app/src/main/res/layout/delete_layout.xml" value="0.1" />
+        <entry key="..\:/my_repo/AKU/Scroli/app/src/main/res/layout/loading_layout.xml" value="0.2069260367678495" />
+        <entry key="..\:/my_repo/AKU/Scroli/app/src/main/res/layout/person_layout.xml" value="0.72" />
         <entry key="..\:/my_repo/AKU/Scroli/app/src/main/res/xml/provider_paths.xml" value="0.12997007268063274" />
         <entry key="..\:/my_repo/Scroli/app/src/main/res/layout/activity_display_deails.xml" value="0.2" />
         <entry key="..\:/my_repo/Scroli/app/src/main/res/layout/delete_layout.xml" value="0.1" />

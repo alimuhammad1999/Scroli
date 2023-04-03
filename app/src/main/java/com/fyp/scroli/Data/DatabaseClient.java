@@ -4,6 +4,8 @@ import android.content.Context;
 
 import androidx.room.Room;
 
+import com.fyp.scroli.R;
+
 public final class DatabaseClient
 {
 
@@ -15,7 +17,7 @@ public final class DatabaseClient
     private DatabaseClient(Context ctx)
     {
         this.ctx = ctx;
-        AppDB = Room.databaseBuilder(ctx,AppDatabase.class,"mydatabase").allowMainThreadQueries().build();
+        AppDB = Room.databaseBuilder(ctx,AppDatabase.class,ctx.getString(R.string.databasename)).allowMainThreadQueries().fallbackToDestructiveMigration().build();
     }
 
     public static DatabaseClient getInstance(Context ctx)

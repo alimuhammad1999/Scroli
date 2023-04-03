@@ -1,4 +1,4 @@
-package com.fyp.scroli.Data;
+package com.fyp.scroli.Data.Models;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
